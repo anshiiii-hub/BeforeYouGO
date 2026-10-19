@@ -1,0 +1,32 @@
+databases:
+  - name: beforeyougo-db
+    databaseName: beforeyougo
+    user: byg
+    plan: free
+    postgresVersion: "16"
+
+services:
+  - type: web
+    name: beforeyougo
+    runtime: docker
+    plan: free
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    healthCheckPath: /api/health
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: beforeyougo-db
+          property: connectionString
+      - key: SECRET_KEY
+        generateValue: true
+      - key: BYG_ENV
+        value: production
+      - key: SYNC_ON_STARTUP
+        value: "true"
+      - key: ENABLE_SCHEDULER
+        value: "true"
+      - key: ADMIN_EMAIL
+        sync: false
+      - key: ADMIN_PASSWORD
+        sync: false

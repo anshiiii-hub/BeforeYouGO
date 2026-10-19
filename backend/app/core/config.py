@@ -4,7 +4,7 @@ from functools import lru_cache
 from pathlib import Path
 from typing import Literal
 
-from pydantic import Field
+from pydantic import Field, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 BACKEND_DIR = Path(__file__).resolve().parents[2]
@@ -22,6 +22,16 @@ class Settings(BaseSettings):
     database_url: str = Field(
         "postgresql+psycopg://byg:byg_dev_password@localhost:5432/beforeyougo", alias="DATABASE_URL"
     )
+
+    @field_validator("database_url", mode="before")
+    @classmethod
+    def normalize_db_url(cls, v: str) -> str:
+        if isinstance(v, str):
+            if v.startswith("postgres://"):
+                return v.replace("postgres://", "postgresql+psycopg://", 1)
+            if v.startswith("postgresql://") and not v.startswith("postgresql+"):
+                return v.replace("postgresql://", "postgresql+psycopg://", 1)
+        return v
     secret_key: str | None = Field(None, alias="SECRET_KEY")
     access_token_minutes: int = Field(480, alias="ACCESS_TOKEN_MINUTES")
     cors_origins: str = Field("http://localhost:5173,http://127.0.0.1:5173", alias="CORS_ORIGINS")
