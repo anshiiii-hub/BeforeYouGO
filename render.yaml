@@ -3,7 +3,6 @@ databases:
     databaseName: beforeyougo
     user: byg
     plan: free
-    postgresVersion: "16"
 
 services:
   - type: web
